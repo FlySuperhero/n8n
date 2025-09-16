@@ -1,0 +1,783 @@
+{
+  "name": "AI news",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        608
+      ],
+      "id": "dc6219d5-d19c-4fe0-8edc-ffe3e796bf0b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "=http://host.docker.internal:1200/xiaohongshu/user/{{ $json.users }}/notes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        96
+      ],
+      "id": "fa9b3ad4-6cbb-444d-8b14-6c745370db5f",
+      "name": "小红书",
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:1200/aibase/news",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1296,
+        608
+      ],
+      "id": "0a8fc976-768a-4b94-944c-75dbdcd15f70",
+      "name": "AIbase"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        96
+      ],
+      "id": "2d245745-e9a2-4506-afad-41a1f03d2616",
+      "name": "Limit",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        608
+      ],
+      "id": "3ee702bb-4149-4a07-8b69-f78d6f13d0a5",
+      "name": "Limit6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all();\n\nconst result = inputData.map(item => {\n  // 解析GMT时间并转换为UTC+8\n  let utc8Time;\n  try {\n    const gmtDate = new Date(item.json.pubDate);\n    const utc8Date = new Date(gmtDate.getTime() + 8 * 60 * 60 * 1000);\n    \n    // 格式化为YYYY-MM-DD HH:mm:ss格式\n    utc8Time = utc8Date.toISOString()\n      .replace('T', ' ')\n      .replace('.000Z', '');\n  } catch (error) {\n    utc8Time = item.json.pubDate; // 如果转换失败，保留原值\n  }\n  \n  return {\n    json: {\n      creator: item.json.creator || '',\n      title: item.json.title || '',\n      link: item.json.link || '',\n      contentSnippet: item.json.contentSnippet || '',\n      pubDate: utc8Time\n    }\n  };\n});\n\nreturn result;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        0
+      ],
+      "id": "b7f0b315-c59b-4450-98cc-83c3d585a737",
+      "name": "Code",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all();\n\nconst result = inputData.map(item => {\n  // 解析GMT时间并转换为UTC+8\n  let utc8Time;\n  try {\n    const gmtDate = new Date(item.json.pubDate);\n    const utc8Date = new Date(gmtDate.getTime() + 8 * 60 * 60 * 1000);\n    \n    // 格式化为YYYY-MM-DD HH:mm:ss格式\n    utc8Time = utc8Date.toISOString()\n      .replace('T', ' ')\n      .replace('.000Z', '');\n  } catch (error) {\n    utc8Time = item.json.pubDate; // 如果转换失败，保留原值\n  }\n  \n  return {\n    json: {\n      creator: item.json.creator || '',\n      title: item.json.title || '',\n      link: item.json.link || '',\n      contentSnippet: item.json.contentSnippet || '',\n      pubDate: utc8Time\n    }\n  };\n});\n\nreturn result;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -848,
+        512
+      ],
+      "id": "9dae17c4-2dd6-4606-9d51-f2b96ad0d7f2",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "da1908c2-2e6b-4d35-b9a3-f79495e29330",
+              "name": "users",
+              "value": "[\"6457d2e4000000001f030dbe\",\"6479b699000000002a0372a1\"]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1296,
+        176
+      ],
+      "id": "3218e490-132b-44d0-8d61-81b9b3858443",
+      "name": "小红书多账户"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "users",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        176
+      ],
+      "id": "f3cbbf38-469f-47f3-8bef-842bfa1188a1",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -848,
+        176
+      ],
+      "id": "85752743-47ac-4c49-8927-3cbcbe4bc0f9",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "270d5699-2ed2-8083-9886-fb6e7f7e69e6",
+          "mode": "list",
+          "cachedResultName": "AI",
+          "cachedResultUrl": "https://www.notion.so/270d56992ed280839886fb6e7f7e69e6"
+        },
+        "title": "={{ $json.creator }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "所属平台|select",
+              "selectValue": "=小红书"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -176,
+        192
+      ],
+      "id": "598c5a9d-7950-4569-9059-95b3d691904f",
+      "name": "Create a database page1",
+      "executeOnce": true,
+      "credentials": {
+        "notionApi": {
+          "id": "fwRUoccuBc7YaIV8",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        48,
+        96
+      ],
+      "id": "11f0451d-bbbc-4e31-aadf-fe2fd7ae6860",
+      "name": "Merge",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $('Create a database page1').first().json.id}}",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_3",
+              "textContent": "={{ $json.title }}"
+            },
+            {
+              "textContent": "={{ $json.contentSnippet }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "🔗原文链接",
+                    "isLink": true,
+                    "textLink": "={{ $json.link }}",
+                    "annotationUi": {
+                      "color": "blue"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "textContent": "={{ $json.pubDate && $json.pubDate.trim() ? '发布时间：' + $json.pubDate : '' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        272,
+        176
+      ],
+      "id": "e427d460-6f52-427a-8951-c0456bc85cb6",
+      "name": "Append a block",
+      "alwaysOutputData": false,
+      "credentials": {
+        "notionApi": {
+          "id": "fwRUoccuBc7YaIV8",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "270d5699-2ed2-8083-9886-fb6e7f7e69e6",
+          "mode": "list",
+          "cachedResultName": "AI",
+          "cachedResultUrl": "https://www.notion.so/270d56992ed280839886fb6e7f7e69e6"
+        },
+        "title": "={{ $json.creator }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "所属平台|select",
+              "selectValue": "={{ $json.creator }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -848,
+        704
+      ],
+      "id": "83263629-f691-46e9-8cf4-98797dc209db",
+      "name": "Create a database page2",
+      "executeOnce": true,
+      "credentials": {
+        "notionApi": {
+          "id": "fwRUoccuBc7YaIV8",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -624,
+        608
+      ],
+      "id": "7c6a24dc-ea02-49d1-a6da-7ed486a8d450",
+      "name": "Merge2",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $('Create a database page2').first().json.id}}",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_3",
+              "textContent": "={{ $json.title }}"
+            },
+            {
+              "textContent": "={{ $json.contentSnippet }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "🔗原文链接",
+                    "isLink": true,
+                    "textLink": "={{ $json.link }}",
+                    "annotationUi": {
+                      "color": "blue"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "textContent": "={{ $json.pubDate && $json.pubDate.trim() ? '发布时间：' + $json.pubDate : '' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        608
+      ],
+      "id": "f39d7ba2-9dae-4f54-8f84-10346866f198",
+      "name": "Append a block2",
+      "alwaysOutputData": false,
+      "credentials": {
+        "notionApi": {
+          "id": "fwRUoccuBc7YaIV8",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        992
+      ],
+      "id": "4b5266e5-590c-4c5a-8c65-9aa2b46d900b",
+      "name": "Limit8"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all();\n\nconst result = inputData.map(item => {\n  // 解析GMT时间并转换为UTC+8\n  let utc8Time;\n  try {\n    const gmtDate = new Date(item.json.pubDate);\n    const utc8Date = new Date(gmtDate.getTime() + 8 * 60 * 60 * 1000);\n    \n    // 格式化为YYYY-MM-DD HH:mm:ss格式\n    utc8Time = utc8Date.toISOString()\n      .replace('T', ' ')\n      .replace('.000Z', '');\n  } catch (error) {\n    utc8Time = item.json.pubDate; // 如果转换失败，保留原值\n  }\n  \n  return {\n    json: {\n      creator: item.json.creator || '',\n      title: item.json.title || '',\n      link: item.json.link || '',\n      contentSnippet: item.json.contentSnippet || '',\n      pubDate: utc8Time\n    }\n  };\n});\n\nreturn result;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -848,
+        896
+      ],
+      "id": "d1527804-13be-4924-ac91-25c55a56214a",
+      "name": "Code8"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "270d5699-2ed2-8083-9886-fb6e7f7e69e6",
+          "mode": "list",
+          "cachedResultName": "AI",
+          "cachedResultUrl": "https://www.notion.so/270d56992ed280839886fb6e7f7e69e6"
+        },
+        "title": "AINEWS",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "所属平台|select",
+              "selectValue": "AINEWS"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -848,
+        1088
+      ],
+      "id": "8483873f-0f5a-4f0c-a32e-683b6b2043b3",
+      "name": "Create a database page3",
+      "executeOnce": true,
+      "credentials": {
+        "notionApi": {
+          "id": "fwRUoccuBc7YaIV8",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -624,
+        992
+      ],
+      "id": "b5fd4176-993e-4e13-b9e9-52bdaa15e644",
+      "name": "Merge3",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "={{ $('Create a database page3').first().json.id}}",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_3",
+              "textContent": "={{ $json.title }}"
+            },
+            {
+              "textContent": "={{ $json.contentSnippet }}"
+            },
+            {
+              "richText": true,
+              "text": {
+                "text": [
+                  {
+                    "text": "🔗原文链接",
+                    "isLink": true,
+                    "textLink": "={{ $json.link }}",
+                    "annotationUi": {
+                      "color": "blue"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "textContent": "={{ $json.pubDate && $json.pubDate.trim() ? '发布时间：' + $json.pubDate : '' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        992
+      ],
+      "id": "e35fc926-506b-4cef-8330-c1315944a0ad",
+      "name": "Append a block3",
+      "alwaysOutputData": false,
+      "credentials": {
+        "notionApi": {
+          "id": "fwRUoccuBc7YaIV8",
+          "name": "Notion account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://www.artificialintelligence-news.com/feed",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1296,
+        992
+      ],
+      "id": "83a90745-2fd1-47c0-90e1-ab2aa360561e",
+      "name": "AINEWS"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "AIbase",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "小红书多账户",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AINEWS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "小红书": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AIbase": {
+      "main": [
+        [
+          {
+            "node": "Limit6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a database page1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit6": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a database page2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "小红书多账户": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "小红书",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Append a block",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append a block": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page2": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Append a block2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append a block2": {
+      "main": [
+        []
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit8": {
+      "main": [
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a database page3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code8": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page3": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Append a block3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AINEWS": {
+      "main": [
+        [
+          {
+            "node": "Limit8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "af598d68-0d06-409f-b5dc-121932d9b941",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8f0ee2d21a478fe7229f8594ec334537074fb85cbd9993a584357a1889966018"
+  },
+  "id": "lkfmbPzNWWWIiuAN",
+  "tags": []
+}
